@@ -7,13 +7,17 @@ side = 60.
 DISP_COLORS = [(1.0, 1.0, 0.0),
                (1.0, 1.0, 1.0),
                (1.0, 0.0, 0.0),
-               (1.0, 0.7, 1.0),
+               (1.0, 0.7, 0.0),
                (0.0, 0.0, 1.0),
                (0.0, 1.0, 0.0)]
 
 
         
-
+def delay(ms):
+    start = time.clock()
+    while time.clock() - start < ms/1000:
+        ''
+        
 
 class Cube_graphics:
 
@@ -45,7 +49,9 @@ class Cube_graphics:
         self.cube = cube
         self.all_faces = [make_face_U(),make_face_D(),make_face_F(),
              make_face_B(),make_face_L(),make_face_R()]
-        self.all_facelets = sum(self.all_faces, [])
+        self.all_facelets = []
+        for face in self.all_faces:
+            self.all_facelets += face
 
         ### END CUBE SET-UP ###    
 
@@ -55,7 +61,7 @@ class Cube_graphics:
         state = self.cube.getcolors()
         for i in range(6):
             for j in range(9):
-                all_faces[i][j].color = DISP_COLORS[state[i][j]]
+                self.all_faces[i][j].color = DISP_COLORS[state[i][j]]
 
         
     ### ROTATION ###
@@ -65,12 +71,14 @@ class Cube_graphics:
         self.cube.rotate('Y', direction)
 
         # animate
-        for i in range(20):
+        for i in range(120):
+            delay(1)
             for facelet in self.all_facelets:
-                facelet.rotate(angle=direction*pi/80,axis = (0,1,0), origin =(0,0,0))
-            time.sleep(.05)
+                facelet.rotate(angle=-direction*pi/320,axis = (0,1,0), origin =(0,0,0))
+            
+
         for facelet in self.all_facelets:
-            facelet.rotate(angle=-direction*pi/4,axis = (0,1,0), origin =(0,0,0))
+            facelet.rotate(angle=direction*pi*3/8,axis = (0,1,0), origin =(0,0,0))
 
         # update colors
         self.update_faces()
@@ -81,13 +89,14 @@ class Cube_graphics:
         self.cube.rotate('X', direction)
 
         # animate
-        for i in range(20):
+        for i in range(120):
+            delay(1)
             for facelet in self.all_facelets:
-                facelet.rotate(angle=direction*pi/80,axis = (1,0,0), origin =(0,0,0))
-            time.sleep(.05)
+                facelet.rotate(angle=-direction*pi/320,axis = (1,0,0), origin =(0,0,0))
+            
             
         for facelet in self.all_facelets:
-            facelet.rotate(angle=-direction*pi/4,axis = (1,0,0), origin =(0,0,0))
+            facelet.rotate(angle=direction*pi*3/8,axis = (1,0,0), origin =(0,0,0))
 
         # update colors
         self.update_faces()
@@ -95,38 +104,41 @@ class Cube_graphics:
     ### TURNS ###
 
     def turn_U(self, drt):
-        faces = all_faces[0]+all_faces[2][0:2]+all_faces[5][0:2]+\
-                all_faces[3][0:2]+all_faces[4][0:2]
+        faces = self.all_faces[0]+self.all_faces[2][0:3]+self.all_faces[5][0:3]+\
+                self.all_faces[3][0:3]+self.all_faces[4][0:3]
 
-        for i in range(20):
+        self.cube.turn('U', drt)
+
+        for i in range(120):
+            delay(5)
             for facelet in faces:
-                rotate(angle=drt*pi/80, axis = (0,1,0), origin=(0,0,0))
-            time.sleep(.05)
+                facelet.rotate(angle=-drt*pi/320, axis = (0,1,0), origin=(0,0,0))
             
-
         #turn back
         for facelet in faces:
-            rotate(angle=(-1)*drt*pi/4, axis = (0,1,0), origin=(0,0,0))
+            facelet.rotate(angle=drt*pi*3/8, axis = (0,1,0), origin=(0,0,0))
         #update colors
-        self.update_faces(cube.getcolors())
+        self.update_faces()
             
 
     def turn_R(self,drt):
-        faces = all_faces[5]+all_faces[0][2]+all_faces[0][5]+all_faces[0][8]+\
-                   all_faces[2][2]+all_faces[2][5]+all_faces[2][8]+\
-                   all_faces[3][2]+all_faces[3][5]+all_faces[3][8]+\
-                   all_faces[1][2]+all_faces[1][5]+all_faces[1][8]
+        faces = self.all_faces[5]+[
+                self.all_faces[0][2],self.all_faces[0][5],self.all_faces[0][8],
+                self.all_faces[2][2],self.all_faces[2][5],self.all_faces[2][8],
+                self.all_faces[3][0],self.all_faces[3][3],self.all_faces[3][6],
+                self.all_faces[1][2],self.all_faces[1][5],self.all_faces[1][8]]
 
-        for i in range(20):
+        self.cube.turn('R', drt)
+        for i in range(120):
+            delay(1)
             for facelet in faces:
-                rotate(angle=drt*pi/80, axis = (0,1,0), origin=(0,0,0))
-            time.sleep(.05)
+                facelet.rotate(angle=-drt*pi/320, axis = (1,0,0), origin=(0,0,0))
 
         #turn back
         for facelet in faces:
-            rotate(angle=(-1)*drt*pi/4, axis = (0,1,0), origin=(0,0,0))
+            facelet.rotate(angle=drt*pi*3/8, axis = (1,0,0), origin=(0,0,0))
         #update colors
-        self.update_faces(cube.getcolors())
+        self.update_faces()
 
 
 ##    def turn_D(self, drt):
@@ -237,7 +249,7 @@ def make_face_R():
     index = 0
     while index < 9:
         for y in [40,0,-40]:
-            for z in [40,0,40]:
+            for z in [-40,0,40]:
                 curr_box = faces[index]
                 curr_box.pos = (side,y,z)
                 curr_box.color = (0,1,0) #green
