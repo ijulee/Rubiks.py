@@ -1,104 +1,230 @@
 """
-PREVIOUSLY WRITTEN CODE WITH CORRECTIONS BY I-JUI LEE (ERIC)
-Faces: FURBLD
+Faces: UDFBLR
 Corners (0-7): BLU, FLU, FRU, BRU, FLD, BLD, BRD, FRD
 Edges (8-19): LU, FU, RU, BU, FR, FL, BL, BR, LD, BD, RD, FD
 
-0  BLU | 1  FLU | 2  FRU | 3  BRU | 4  FLD
-5  BLD | 6  BRD | 7  FRD | 8  LU  | 9  FU
-10 RU  | 11 BU  | 12 FR  | 13 FL  | 14 BL
-15 BR  | 16 LD  | 17 BD  | 18 RD  | 19 FD
+0 U | 1 D
+2 F | 3 B
+4 L | 5 R
+
+0 BLU | 1 FLU | 2 FRU | 3 BRU
+4 FLD | 5 BLD | 6 BRD | 7 FRD
+
+ 0 LU |  1 FU |  2 RU |  3 BU
+ 4 FR |  5 FL |  6 BL |  7 BR
+ 8 LD |  9 BD | 10 RD | 11 FD
+
+*********************************
+Relevant attributes of class Cube
+*********************************
+solved: True if cube is in a solved state
+reset(): resets cube to stadard orientation solved state
+turn(face): turns FACE by 1 quarter turn
+rotate(axis): rotates cube along AXIS by 1 quarter turn
+getcolors(): returns a list of the list of facelet colors on each face
 """
-NAME = 'FURLDB'
-CSTR = 'RYGBWO'
 
-PERM = [[[1, 4, 7, 2], [13, 19, 12,  9]],
-        [[0, 1, 2, 3], [ 8,  9, 10, 11]],
-        [[2, 7, 6, 3], [12, 18, 15, 10]],
-        [[0, 5, 4, 1], [14, 16, 13,  8]],
-        [[4, 5, 6, 7], [16, 17, 18, 19]],
-        [[3, 6, 5, 0], [15, 17, 14, 11]]]
+FACE   = 'UDFBLR'
+COLORS = 'YWROBG'
 
-ORIE = [[(1, 1), ( 9, 1), (2, 2), (13, 0), (12, 0), (4, 2), (19, 1), (7, 1)],
-        [(0, 0), (11, 0), (3, 0), ( 8, 0), (10, 0), (1, 0), ( 9, 0), (2, 0)],
-        [(2, 1), (10, 1), (3, 2), (12, 1), (15, 1), (7, 2), (18, 1), (6, 1)],
-        [(0, 1), ( 8, 1), (1, 2), (14, 1), (13, 1), (5, 2), (16, 1), (4, 1)],
-        [(4, 0), (19, 0), (7, 0), (16, 0), (18, 0), (5, 0), (17, 0), (6, 0)],
-        [(3, 1), (11, 1), (0, 2), (15, 0), (14, 0), (6, 2), (17, 1), (5, 1)]]
+TURN_EDGE = [[ 0,  1,  2,  3],
+             [ 8,  9, 10, 11],
+             [ 5, 11,  4,  1],
+             [ 7,  9,  6,  3],
+             [ 6,  8,  5,  0],             
+             [ 4, 10,  7,  2]]
 
-COLORS = [(1, 3, 5), (1, 0, 3), (1, 2, 0), (1, 5, 2),
-          (4, 3, 0), (4, 5, 3), (4, 2, 5), (4, 0, 2),
-          (1, 3), (1, 0), (1, 2), (1, 5),
-          (0, 2), (0, 3), (5, 3), (5, 2),
-          (4, 3), (4, 5), (4, 2), (4, 0)]
+TURN_CORNER = [[0, 1, 2, 3],
+               [4, 5, 6, 7],
+               [1, 4, 7, 2], 
+               [3, 6, 5, 0],
+               [0, 5, 4, 1],
+               [2, 7, 6, 3]]
 
-CORNERS = 0
-EDGES = 1
+ORIE_CORNER = [[(0, 0), (3, 0), (1, 0), (2, 0)],
+               [(4, 0), (7, 0), (5, 0), (6, 0)],
+               [(1, 1), (2, 2), (4, 2), (7, 1)],
+               [(3, 1), (0, 2), (6, 2), (5, 1)],
+               [(0, 1), (1, 2), (5, 2), (4, 1)],               
+               [(2, 1), (3, 2), (7, 2), (6, 1)]]
+               
+ORIE_EDGE = [[( 3, 0), ( 0, 0), ( 2, 0), ( 1, 0)],
+             [(11, 0), ( 8, 0), (10, 0), ( 9, 0)],
+             [( 1, 1), ( 5, 0), ( 4, 0), (11, 1)],
+             [( 3, 1), ( 7, 0), ( 6, 0), ( 9, 1)],
+             [( 0, 1), ( 6, 1), ( 5, 1), ( 8, 1)],
+             [( 2, 1), ( 4, 1), ( 7, 1), (10, 1)]]
+
+COLOR_CORNER = [(0,4,3),(0,2,4),(0,5,2),(0,3,5),
+                (1,4,2),(1,3,4),(1,5,3),(1,2,5)]
+COLOR_EDGE = [(0,4),(0,2),(0,5),(0,3),
+              (2,5),(2,4),(3,4),(3,5),
+              (1,4),(1,3),(1,5),(1,2)]
 
 class Cube:
-    PERM = {NAME[i]: PERM[i] for i in range(6)}
+    def __init__(self):
+        # permutations
+        self.face_perm   = list(range( 6))
+        self.edge_perm   = list(range(12))
+        self.corner_perm = list(range( 8))
 
-    def __init__(self, state = None):
-        self.perm = list(range(20))
-        self.orie = [0] * 20
-        if state:
-            self.apply_state(state)
+        # orientations
+        self.edge_orie   = [0] * 12
+        self.corner_orie = [0] * 8
 
-    def state(self):
-        return [[(self.perm[i], self.orie[i]) for i in range(8)],
-                [(self.perm[i], self.orie[i]) for i in range(8,20)]]
-    
     @property
     def solved(self):
-        return self.perm == list(range(20)) and self.orie == [0] * 20
+        colors = self.getcolors();
+        return all([ all([ face[0]==face[i]
+                           for i in range(9) ])
+                     for face in colors ])
 
     def reset(self):
-        self.perm = list(range(20))
-        self.orie = [0] * 20
+        self.face_perm   = list(range( 6))
+        self.edge_perm   = list(range(12))
+        self.corner_perm = list(range( 8))
 
-    def _turn(self, name):
-        data = Cube.PERM[name]
-        cycle(self.perm, data)
-        cycle(self.orie, data)
-        if name in 'FB':
-            for i in range(4):
-                self.orie[data[EDGES][i]] += 1
-        if name in 'FRBL':
-            for i in range(4):
-                self.orie[data[CORNERS][i]] += [2, 1, 2, 1][i]    
-    
-    def turn(self, name, rep):
-        rep %= 4
-        for i in range(rep):
-            self._turn(name)
-        self.normalize()
+        self.edge_orie   = [0] * 12
+        self.corner_orie = [0] * 8
 
-    def normalize(self):
-        for i in range(8):
-            self.orie[i] %= 3
-        for i in range(8, 20):
-            self.orie[i] %= 2
-
-    def apply_state(self, state):
-        if type(state) == Cube:
-            perm, orie = state.perm, state.orie
+    def turn(self, face, rep=1):
+        if face in 'UDFBLR':
+            for i in range(rep%4):
+                self._action(face)
+            self._normalize()
         else:
-            if len(state) != 2:
-                raise ValueError('invalid state')
-            perm, orie = state
-
-        perm = map_to_cycles(perm)
-        cycle(self.perm, perm)
-        cycle(self.orie, perm)
-        for i in len(orie):
-            self.orie[i] += orie[i]
+            raise ValueError("There is no "+name+" face.")
             
-        self.normalize()
+    def rotate(self, axis, rep=1):
+        if axis in 'XYZ':
+            for i in range(rep%4):
+                self._action(axis)
+            self._normalize()
+        else:
+            raise ValueError("There is no "+axis+" axis.")
 
+    def getcolors(self):
+        # get corresponding color data for face facelets of each face
+        face_colors = self.face_perm
+        # get corresponding color data for edge facelets of each face
+        edge_cubies = [ [ COLOR_EDGE[self.edge_perm[facelet[0]]]
+                          for facelet in face ]
+                        for face in ORIE_EDGE ]
+        # get corresponding color data for corner facelets of each face 
+        corner_cubies = [ [ COLOR_CORNER[self.corner_perm[facelet[0]]]
+                            for facelet in face ]
+                          for face in ORIE_CORNER ]
+        
+        # get orientation for edge facelets of each face
+        edge_ories =  [ [ facelet[1]-self.edge_orie[facelet[0]]
+                          for facelet in face ]
+                        for face in ORIE_EDGE ]
+        # get orientation for corner facelets of each face
+        corner_ories = [ [ facelet[1]-self.corner_orie[facelet[0]]
+                           for facelet in face ]
+                         for face in ORIE_CORNER ]
+
+        edge_colors = [ [ edge_cubies[i][j][edge_ories[i][j]%2]
+                          for j in range(4) ]
+                        for i in range(6) ]
+        
+        corner_colors = [ [ corner_cubies[i][j][corner_ories[i][j]%3]
+                            for j in range(4) ]
+                          for i in range(6) ]
+
+        colors = [ [ corner_colors[i][0], edge_colors[i][0], corner_colors[i][1],
+                       edge_colors[i][1], face_colors[i]   ,   edge_colors[i][2],
+                     corner_colors[i][2], edge_colors[i][3], corner_colors[i][3] ]
+                   for i in range (6) ]
+        
+        return colors
+        
+    def _action(self, name):
+        # turns
+        if name in FACE:
+            face_num = FACE.find(name)
+            # cycle the edges
+            edge_cycle = TURN_EDGE[face_num]
+            cycle(self.edge_perm, [edge_cycle])
+            cycle(self.edge_orie, [edge_cycle])
+            # cycle the corners
+            corner_cycle = TURN_CORNER[face_num]
+            cycle(self.corner_perm, [corner_cycle])
+            cycle(self.corner_orie, [corner_cycle])
+            # update edge orientations
+            if name in 'FB':
+                for i in range(4):
+                    self.edge_orie[edge_cycle[i]] += 1
+            # update corner orientations
+            if name in 'FRBL':
+                for i in range(4):
+                    self.corner_orie[corner_cycle[i]] += [2, 1, 2, 1][i]
+
+        # rotations
+        if name == 'X':
+            cycle(self.face_perm, [[0,2,1,3]])
+            
+            cycle(self.edge_perm, [[6,0,5,8],[4,10,7,2],[1,11,9,3]])
+            cycle(self.edge_orie, [[6,0,5,8],[4,10,7,2],[1,11,9,3]])
+
+            cycle(self.corner_perm, [[0,1,4,5],[2,7,6,3]])
+            cycle(self.corner_orie, [[0,1,4,5],[2,7,6,3]])
+            
+            for i in range(4):
+                self.corner_orie[[0,1,4,5][i]] += [2, 1, 2, 1][i]
+                self.corner_orie[[2,7,6,3][i]] += [2, 1, 2, 1][i]
+                self.edge_orie[[1,11,9,3][i]] += 1
+
+            
+        elif name == 'Y':
+            cycle(self.face_perm, [[5,3,4,2]])
+            
+            cycle(self.edge_perm, [[0,1,2,3],[7,6,5,4],[11,10,9,8]])
+            cycle(self.edge_orie, [[0,1,2,3],[7,6,5,4],[11,10,9,8]])
+
+            cycle(self.corner_perm, [[0,1,2,3],[7,6,5,4]])
+            cycle(self.corner_orie, [[0,1,2,3],[7,6,5,4]])
+
+            for i in [4,5,6,7]:
+                self.edge_orie[i] += 1
+            
+        elif name == 'Z':
+            
+            cycle(self.face_perm, [[0,4,1,5]])
+            
+            cycle(self.edge_perm, [[5,11,4,1],[7,3,6,9],[0,8,10,2]])
+            cycle(self.edge_orie, [[5,11,4,1],[7,3,6,9],[0,8,10,2]])
+
+            cycle(self.corner_perm, [[1,4,7,2],[3,0,5,6]])
+            cycle(self.corner_orie, [[1,4,7,2],[3,0,5,6]])
+            
+            for i in range(4):
+                self.corner_orie[[1,4,7,2][i]] += [2, 1, 2, 1][i]
+                self.corner_orie[[3,0,5,6][i]] += [2, 1, 2, 1][i]
+
+            for i in range(12):
+                self.edge_orie[i] += 1
+            
+
+    def _normalize(self):
+        for i in range(8):
+            self.corner_orie[i] %= 3
+        for i in range(12):
+            self.edge_orie[i] %= 2
+            
     def apply_moves(self, moves):
         f, d = Cube.parse(moves)
         for i in range(len(f)):
             self.turn(f[i], d[i])
+
+    def __str__(self):
+        c = [''.join([COLORS[cubie] for cubie in face])
+             for face in self.getcolors()]
+        return '   %s\n   %s\n   %s\n'%(c[0][:3], c[0][3:6], c[0][6:9]) + \
+               c[4] [:3] + c[2] [:3] + c[5] [:3] + c[3] [:3] + '\n' + \
+               c[4][3:6] + c[2][3:6] + c[5][3:6] + c[3][3:6] + '\n' + \
+               c[4][6:9] + c[2][6:9] + c[5][6:9] + c[3][6:9] + '\n' + \
+               '   %s\n   %s\n   %s\n'%(c[1][:3], c[1][3:6], c[1][6:9]) 
 
     def parse(moves):
         """MOVES is a string of turns. Each turn is a character indicating the
@@ -127,57 +253,7 @@ class Cube:
                     d.append(1)
         return (f, d)
 
-    def getcolors(self):
-        # get corresponding cubie color data for each facelet
-        cubies = [ [ COLORS[self.perm[facelet[0]]] for facelet in face ]
-                  for face in ORIE ]
-        # corresponding orientation
-        ories =  [ [ -self.orie[facelet[0]]+facelet[1] for facelet in face ]
-                  for face in ORIE ]
-        
-        colors = [ [ cubies[i][j][ories[i][j]%len(cubies[i][j])] for j in range(8) ] for i in range(6) ]
-        
-        colors = [colors[i][:4] + [i] + colors[i][4:] for i in range(6)]
-
-        return colors
-        '''c = [[COLORS[self.perm[cubie[0]]]
-              [(self.orie[cubie[0]] + cubie[1])%len(COLORS[self.perm[cubie[0]]])]
-              for cubie in face]
-             for face in ORIE]
-        c = [c[i][:4] + [i] + c[i][4:] for i in range(6)]
-        return c'''
-
-    def __str__(self):
-        c = [''.join([CSTR[cubie] for cubie in face])
-             for face in self.getcolors()]
-        return '   %s\n   %s\n   %s\n'%(c[1][:3], c[1][3:6], c[1][6:9]) + \
-               c[3] [:3] + c[0] [:3] + c[2] [:3] + c[5] [:3] + '\n' + \
-               c[3][3:6] + c[0][3:6] + c[2][3:6] + c[5][3:6] + '\n' + \
-               c[3][6:9] + c[0][6:9] + c[2][6:9] + c[5][6:9] + '\n' + \
-               '   %s\n   %s\n   %s\n'%(c[4][:3], c[4][3:6], c[4][6:9])
-               
     
-def map_to_cycles(m):
-    cycles = []
-    visited = []
-    try:
-        for i in range(len(m)):
-            if i not in visited:
-                visited.append(i)
-                j = m[i]
-                cycle = [i]
-                while j != i:
-                    if j in visited:
-                        raise ValueError('not bijective')
-                    else:
-                        visited.append(j)
-                    cycle.append(j)
-                    j = m[j]
-                if cycle != [i]:
-                    cycles.append(cycle)
-    except IndexError:
-        raise ValueError("invalid map")
-    return cycles
 
 def cycle(L, cycles, rep = 1):
     """ Given list L and CYCLES, a list of cycles characterizing a mapping,
@@ -201,7 +277,7 @@ def cycle(L, cycles, rep = 1):
             L[c[-1]] = dummy
         rep -= 1
     return L
-        
+
 def cube_test():
     c = Cube();
     s = "RUR'F'UFU'R'FRF'U'"
@@ -229,7 +305,3 @@ def cube_test():
     for i in range(len(f)):
         c.turn(f[i], d[i])
     assert c.solved, "not solved: " + s
-
-    return c
-
-
