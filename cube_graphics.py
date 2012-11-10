@@ -7,7 +7,7 @@ side = 60.
 DISP_COLORS = [(1.0, 1.0, 0.0),
                (1.0, 1.0, 1.0),
                (1.0, 0.0, 0.0),
-               (1.0, 0.8, 0.0),
+               (1.0, 0.7, 1.0),
                (0.0, 0.0, 1.0),
                (0.0, 1.0, 0.0)]
 
@@ -159,7 +159,7 @@ def make_face_U():
 
     index = 0
     while index < 9:
-        for z in [40,0,-40]:
+        for z in [-40,0,40]:
             for x in [-40,0,40]:
                 curr_box = faces[index]
                 curr_box.pos = (x,side,z)
@@ -209,7 +209,7 @@ def make_face_B():
             for x in [40,0,-40]:
                 curr_box = faces[index]
                 curr_box.pos = (x,y,0-side)
-                curr_box.color = (1,.5,1) #orange
+                curr_box.color = color.orange #orange
                 index += 1
 
     return faces;
@@ -222,7 +222,7 @@ def make_face_L():
     index = 0
     while index < 9:
         for y in [40,0,-40]:
-            for z in [40,0,-40]:
+            for z in [-40,0,40]:
                 curr_box = faces[index]
                 curr_box.pos = (0-side,y,z)
                 curr_box.color = (0,0,1) # blue
@@ -237,7 +237,7 @@ def make_face_R():
     index = 0
     while index < 9:
         for y in [40,0,-40]:
-            for z in [-40,0,40]:
+            for z in [40,0,40]:
                 curr_box = faces[index]
                 curr_box.pos = (side,y,z)
                 curr_box.color = (0,1,0) #green
@@ -246,14 +246,4 @@ def make_face_R():
     return faces;
 
 ### END INITIALIZE/ MAKE THE CUBE ###
-
-
-
-
-
-
-
-
-
-
 
