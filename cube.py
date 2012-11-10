@@ -23,6 +23,7 @@ turn(face): turns FACE by 1 quarter turn
 rotate(axis): rotates cube along AXIS by 1 quarter turn
 getcolors(): returns a list of the list of facelet colors on each face
 """
+from random import randint
 
 FACE   = 'UDFBLR'
 COLORS = 'YWROBG'
@@ -86,6 +87,10 @@ class Cube:
 
         self.edge_orie   = [0] * 12
         self.corner_orie = [0] * 8
+
+    def randomize(self):
+        for i in range(20):
+            self.turn(FACE[randint(0,5)], randint(0,3))
 
     def turn(self, face, rep=1):
         if face in 'UDFBLR':

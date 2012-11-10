@@ -1,7 +1,10 @@
-# Show a character key when pressed without using Enter key
-# hide the Tkinter GUI window, only console shows
-
 import tkinter as tk
+from cube import Cube
+"""
+Show a character key when pressed without using Enter key
+hide the Tkinter GUI window, only console shows
+"""
+c = Cube()
 
 def key(event):
     """shows key or tk code for the key"""
@@ -10,28 +13,25 @@ def key(event):
     if event.char == event.keysym:
         # w, a, s, d, o, p
         if (event.char == 'w'):
-            print("when whiny winter wanes")
-        elif (event.char == 'a'):
-            print("anaconda attacking apples")
-        elif (event.char == 's'):
-            print("super sexy shenanigans")
+            c.rotate('X', 1)
         elif (event.char == 'd'):
-            print("deadly dementors dying")
+            c.rotate('X', -1)
+        elif (event.char == 'a'):
+            c.rotate('Y', 1)
+        elif (event.char == 's'):
+            c.rotate('Y', -1)
         elif (event.char == 'o'):
-            print("ooooooh sayy caaan you ooooh")
+            c.reset();
         elif (event.char == 'p'):
-            print("puh- puh- puh- puh- power")
+            print("Remember to implement randomize()!!!")
     else:
         if (event.keysym == 'Up'):
-            print("What goes UP....")
+            c.turn('R', 1)
         elif (event.keysym == 'Down'):
-            print("Must come DOWN....")
+            c.turn('R', -1)
         elif (event.keysym == 'Left'):
-            print("left left a b a b")
+            c.turn('U', 1)
         elif (event.keysym == 'Right'):
-            print("right right start select")
-root = tk.Tk()
-print( "Press a key (Escape key to exit):" )
-root.bind_all('<Key>', key)
-root.withdraw()
-root.mainloop()
+            c.turn('U', -1)
+    print('\n'+str(c))
+
