@@ -7,7 +7,7 @@ side = 60.
 DISP_COLORS = [(1.0, 1.0, 0.0),
                (1.0, 1.0, 1.0),
                (1.0, 0.0, 0.0),
-               (1.0, 0.7, 0.0),
+               (1.0, 0.6, 0.0),
                (0.0, 0.0, 1.0),
                (0.0, 1.0, 0.0)]
 
@@ -27,8 +27,10 @@ class Cube_graphics:
         self.scene = display(height = 500, width = 500)
         self.scene.title= "Rubik's Cube"
         self.scene.foreground = (1,1,1)
-        self.scene.background = color.gray(.5)
+        self.scene.background = color.gray(.3)
         self.scene.ambient = color.gray(.9)
+
+                       
         ##scene.lights = [distant_light(direction=(0, 0, 100), color=color.gray(0.8)),
         ## distant_light(direction=(-0.88, -0.22, -0.44), color=color.gray(0.3))]
 
@@ -39,6 +41,7 @@ class Cube_graphics:
         self.scene.forward = rotate(self.scene.forward, angle = -pi/6, axis = crossp)
         self.scene.up = rotate(self.scene.up, angle = -pi/6, axis = crossp)
 
+        self.scene.range = 125
 
         ### END DISPLAY/SCENE STUFF ###
         
@@ -164,10 +167,15 @@ class Cube_graphics:
 
 
 ### INITIALIZE/ MAKE THE CUBE ###
+f_size= 35
+thickness = 1
+mtrl = materials.emissive
+
 
 #UPPER FACE
 def make_face_U():
-    faces = [box(axis=(0,0,1),length =35, height=0, width=35) for i in range(9)]
+    faces = [box(axis=(0,0,1),length =f_size, height=thickness, width=f_size,
+                 material= mtrl) for i in range(9)]
 
     index = 0
     while index < 9:
@@ -175,14 +183,15 @@ def make_face_U():
             for x in [-40,0,40]:
                 curr_box = faces[index]
                 curr_box.pos = (x,side,z)
-                curr_box.color = (1,1,0) #yellow
+                curr_box.color = (1,1,0.3) #yellow
                 index += 1
 
     return faces;
 
 #DOWN FACE
 def make_face_D():
-    faces = [box(axis=(0,0,1),length =35, height=0, width=35) for i in range(9)]
+    faces = [box(axis=(0,0,1),length =f_size, height=thickness, width=f_size,
+                 material= mtrl) for i in range(9)]
 
     index = 0
     while index < 9:
@@ -198,7 +207,8 @@ def make_face_D():
 
 #FRONT FACE
 def make_face_F():
-    faces = [box(length =35, height=35, width=0) for i in range(9)]
+    faces = [box(length =f_size, height=f_size, width=thickness,
+                 material= mtrl) for i in range(9)]
 
     index = 0
     while index < 9:
@@ -213,7 +223,8 @@ def make_face_F():
 
 #BACK FACE
 def make_face_B():
-    faces = [box(length =35, height=35, width=0) for i in range(9)]
+    faces = [box(length =f_size, height=f_size, width=thickness,
+                 material= mtrl) for i in range(9)]
 
     index = 0
     while index < 9:
@@ -221,7 +232,7 @@ def make_face_B():
             for x in [40,0,-40]:
                 curr_box = faces[index]
                 curr_box.pos = (x,y,0-side)
-                curr_box.color = color.orange #orange
+                curr_box.color = (1.0,.6,0) # orange
                 index += 1
 
     return faces;
@@ -229,7 +240,8 @@ def make_face_B():
 
 # LEFT FACE
 def make_face_L():
-    faces = [box(axis=(0,0,1),length =35, height=35, width=0) for i in range(9)]
+    faces = [box(axis=(0,0,1),length =f_size, height=f_size, width=thickness,
+                 material= mtrl) for i in range(9)]
 
     index = 0
     while index < 9:
@@ -244,7 +256,8 @@ def make_face_L():
 
 #RIGHT FACE
 def make_face_R():
-    faces = [box(axis=(0,0,1),length =35, height=35, width=0) for i in range(9)]
+    faces = [box(axis=(0,0,1),length =f_size, height=f_size, width=thickness,
+                 material= mtrl) for i in range(9)]
 
     index = 0
     while index < 9:
