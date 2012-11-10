@@ -14,11 +14,11 @@ def key(event):
         # w, a, s, d, o, p
         if (event.char == 'w'):
             c.rotate('X', 1)
-        elif (event.char == 'd'):
+        elif (event.char == 's'):
             c.rotate('X', -1)
         elif (event.char == 'a'):
             c.rotate('Y', 1)
-        elif (event.char == 's'):
+        elif (event.char == 'd'):
             c.rotate('Y', -1)
         elif (event.char == 'o'):
             c.reset();
