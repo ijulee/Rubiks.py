@@ -34,10 +34,10 @@ class Cube_graphics:
 
 
         # puts view at an angle
-        scene.forward=rotate(scene.forward, angle = pi/4, axis = scene.up)
-        crossp = cross(scene.forward, scene.up)
-        scene.forward = rotate(scene.forward, angle = -pi/6, axis = crossp)
-        scene.up = rotate(scene.up, angle = -pi/6, axis = crossp)
+        self.scene.forward=rotate(self.scene.forward, angle = pi/4, axis = self.scene.up)
+        crossp = cross(self.scene.forward, self.scene.up)
+        self.scene.forward = rotate(self.scene.forward, angle = -pi/6, axis = crossp)
+        self.scene.up = rotate(self.scene.up, angle = -pi/6, axis = crossp)
 
 
         ### END DISPLAY/SCENE STUFF ###
@@ -72,7 +72,7 @@ class Cube_graphics:
 
         # animate
         for i in range(120):
-            delay(1)
+            delay(2)
             for facelet in self.all_facelets:
                 facelet.rotate(angle=-direction*pi/320,axis = (0,1,0), origin =(0,0,0))
             
@@ -90,7 +90,7 @@ class Cube_graphics:
 
         # animate
         for i in range(120):
-            delay(1)
+            delay(2)
             for facelet in self.all_facelets:
                 facelet.rotate(angle=-direction*pi/320,axis = (1,0,0), origin =(0,0,0))
             
@@ -110,7 +110,7 @@ class Cube_graphics:
         self.cube.turn('U', drt)
 
         for i in range(120):
-            delay(5)
+            delay(2)
             for facelet in faces:
                 facelet.rotate(angle=-drt*pi/320, axis = (0,1,0), origin=(0,0,0))
             
@@ -130,7 +130,7 @@ class Cube_graphics:
 
         self.cube.turn('R', drt)
         for i in range(120):
-            delay(1)
+            delay(2)
             for facelet in faces:
                 facelet.rotate(angle=-drt*pi/320, axis = (1,0,0), origin=(0,0,0))
 
@@ -249,7 +249,7 @@ def make_face_R():
     index = 0
     while index < 9:
         for y in [40,0,-40]:
-            for z in [-40,0,40]:
+            for z in [40,0,-40]:
                 curr_box = faces[index]
                 curr_box.pos = (side,y,z)
                 curr_box.color = (0,1,0) #green
